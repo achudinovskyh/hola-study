@@ -1,0 +1,130 @@
+<!doctype html>
+<html>
+  <head>
+    <title>MySocket.IO Chat</title>
+    <style>
+        * { 
+            margin: 0; padding: 0; box-sizing: border-box; 
+        }
+        body { 
+            font: 13px Helvetica, Arial; 
+        }
+        .chat form { 
+            background: #000; padding: 3px; position: fixed; bottom: 0; width: 100%; 
+        }
+        .chat form input { 
+            border: 0; padding: 10px; width: 90%; margin-right: .5%; 
+        }
+        .chat form button{ 
+            width: 9%; background: rgb(130, 224, 255); border: none; padding: 10px; 
+        }
+        #messages {
+            list-style-type: none; margin: 0; padding: 0; 
+        }
+        #messages li {
+            padding: 5px 10px; 
+        }
+        #messages li:nth-child(odd) {
+            background: #eee; 
+        }
+        .chatWindow{
+            display: none;
+        }
+        .chat {
+            width: 80%;
+            float: left;
+        }
+        .userName {
+            text-align: center;
+            padding: 100px;
+        } 
+        .wellcome{
+            font-size: 40px; 
+        }
+        #online{
+            width: 20%;
+            float: right;
+            padding: 20px;
+        }
+        #users{
+            list-style-type: none;
+            padding: 5px;
+            padding-left: 20px;
+        }
+        #typers{
+            color: white;
+        }
+    </style>
+  </head>
+  <body>
+   <div class="userName">
+        <form id="userForm" >
+            <p class="wellcome" id="welcomeMessage">Wellcome!!! <br> Enter your username please</p>
+          <input id="userName" autocomplete="off">
+            <input type="submit" value="Login">
+        </form>     
+   </div>
+   <div class="chatWindow">
+    <div class="chat">
+      <ul id="messages"></ul>
+        <form id="chatForm" action="">
+         <p id="typers"></p>
+          <input id="m" autocomplete="off" /><button>Send</button>
+        </form>  
+    </div>
+    <div id="online">
+       <p>Online:</p>
+        <ul id="users"></ul>
+    </div>   
+   </div>
+	<script src="/socket.io/socket.io.js"></script>
+	<script src="http://code.jquery.com/jquery-1.11.1.js"></script>
+<script>
+    var socket = io();
+    
+    $('#userForm').submit(function(){
+        socket.emit('new user', $('#userName').val(),function(response){
+            if(response){
+                $('.userName').hide();
+                $('.chatWindow').show();
+            }else{
+                $('#welcomeMessage').text('User with this name already exists!')
+            }
+        });
+        $('#userName').val('');
+        return false;
+    }); 
+   
+    $('#chatForm').submit(function(){
+        socket.emit('new message', $('#m').val(),function(response){
+            $('#messages').append($('<li>').text(response)); 
+        });
+        $('#m').val('');
+        return false;
+    });
+    
+    socket.on('chat message', function(msg){
+      $('#messages').append($('<li>').text(msg)); 
+    });
+    
+    socket.on('get users', function(users){
+        $('#users').html(""); 
+        for(var i = 0; i < users.length;i++){
+           $('#users').append($('<li>').text(users[i]));    
+        }
+    });
+    
+    $("#m").bind('keydown', function () {
+        socket.emit('typing', "");
+    });
+    
+    $("#m").bind('blur', function () {
+        socket.emit('stop typing', "");
+    });
+    
+    socket.on('user is typing', function (html) {
+        $("#typers").text(html);    
+    });
+</script>
+  </body>
+</html>

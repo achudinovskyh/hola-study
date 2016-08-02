@@ -1,0 +1,285 @@
+<!DOCTYPE HTML>
+<html>
+	<head>
+		<title>toDoList</title>
+        <meta charset='utf-8' />
+        <style>
+            body{
+                width: 70%;
+                margin: auto;
+                margin-top: 60px;
+            }
+            ul {
+                list-style-type: none;
+                padding: 0px 5px;
+            }
+            li{
+                display: block;
+            }
+            li:hover {
+                background-color: gray;
+                
+            }
+            li:hover div.close {
+                visibility: visible;
+            }
+            #task {
+                width: 97%;
+                float: right;
+            }
+            #window {
+                border: 1px solid black;
+                margin-top: 10px;
+                height: 500px;
+            }
+            #menu {
+                display: flex;
+                flex-direction: row;
+                justify-content: space-between;
+                border-top: 2px solid black;
+                padding-top: 10px;
+                margin: 10px;
+                bottom: 0;
+            }
+            .button {
+                background-color: white;
+                border: none;
+                color: blue;
+                text-decoration: underline;
+            }
+            .close {
+                float: right;
+                margin-right: 15px;
+                visibility: hidden;
+                cursor: pointer;
+            }
+            input {
+                float: left;
+            }
+            .liHolder {
+                display:inline-block;
+                width: 95%;
+            }
+            .lineThrowgh {
+                text-decoration: line-through;
+            }
+        </style>
+    </head>
+	<body>
+		<input type="checkbox" name="selectAll" onclick="selectAll(this.checked)" value="All">
+        <input id="task" type="text" name="task" onkeyup="handleOnKeyDown(event)" autofocus><br>
+        <div id="window">
+             <div style="height:430px; overflow-y:scroll;">
+                 <ul id="list">
+                 </ul> 
+             </div>  
+             <div id="menu">
+                 <div><span id="tasksLeft" style="margin: 0;">Task's left: 0</span></div>
+                 <div>
+                  <input type="button" onclick="showAllTasks()" value="All">
+                  <input type="button" onclick="showActiveTasks()" value="Active">
+                  <input type="button" onclick="showFinishedTsaks()" value="Done">
+                 </div>
+                 <div><button class="button" onclick="clearFinishedTasks()">Clear Finished Tasks</button></div>
+             </div>    
+        </div>
+        
+		<script>
+            var tasksStorage = localStorage;
+            function init() {
+                switch(localStorage.getItem(0)){
+                    case 0:{
+                        showAllTasks();
+                        break;
+                    }
+                    case 1:{
+                        showActiveTasks();
+                        break;
+                    } 
+                    case 2:{
+                        showFinishedTsaks();
+                        break;
+                    }    
+                }
+            }
+            
+            function addNewTask(text,checked){
+                tasksStorage.setItem(text,checked);
+                document.getElementById("task").value = "";
+                
+                var list = document.getElementById("list");
+                var li = document.createElement("li");
+                list.appendChild(li);
+                
+                var div1 = document.createElement("div");
+                div1.className = "liHolder";
+                if(checked === "true"){
+                    div1.className += " lineThrowgh";
+                }
+                
+                var div2 = document.createElement("div");
+                div2.className = "close";
+                div2.innerHTML = "X";
+                div2.onclick = function(){
+                    tasksStorage.removeItem(text);
+                    this.parentElement.remove();
+                    setCounter();
+                }
+                
+                li.appendChild(div1);
+                li.appendChild(div2);
+                
+                var checkbox = document.createElement("input");
+                checkbox.type = "checkbox";
+                if(checked === "true"){
+                    checkbox.checked = true;
+                }
+                checkbox.onclick = function(){
+                    var temp = this.parentElement;
+                    if(this.checked){
+                        temp.className += " lineThrowgh";
+                        tasksStorage.setItem(temp.innerText,true);
+                    }else{
+                        temp.className = temp.className.replace(" lineThrowgh","");
+                        tasksStorage.setItem(temp.innerText,true);
+                    }
+                    setCounter();
+                }
+                
+                div1.appendChild(checkbox);
+                
+                var divText = document.createElement("div");
+                var span = document.createElement("span");
+                span.appendChild(document.createTextNode(text));
+                var input = document.createElement("input");
+                input.style = "display:none;"
+                divText.ondblclick = function(){
+                    var text = this.firstChild.innerText;
+                    this.firstChild.style = "display:none";
+                    this.lastChild.style = "display:block";
+                    this.lastChild.value = text;
+                    this.lastChild.focus();
+                }
+                input.onkeydown = function(event){
+                    if(event.keyCode === 13){ 
+                        this.parentElement.firstChild.innerText = this.value; 
+                        this.style = "display:none"
+                        this.parentElement.firstChild.style = "display:block";
+                        return;
+                    }
+                    if(event.keyCode === 27){
+                        this.style = "display:none"
+                        this.parentElement.firstChild.style = "display:block";
+                        return;
+                    }     
+                }
+                input.onblur = function(){
+                    this.style = "display:none"
+                    this.parentElement.firstChild.style = "display:block";
+                    return;    
+                }
+                
+                div1.appendChild(divText);
+                
+                divText.appendChild(span);
+                divText.appendChild(input); 
+                setCounter();
+            }   
+            
+            function setCounter(){
+                var tasksCount = Object.keys(tasksStorage).length - 1;
+                var finishedTasks = 0;
+                for (var i = 1; i < tasksStorage.length; i++) {
+                    if (tasksStorage.hasOwnProperty(tasksStorage.key(i))){
+                        if(tasksStorage.getItem(tasksStorage.key(i)) === "true"){
+                            finishedTasks++;    
+                        }
+                    }
+                }
+                document.getElementById("tasksLeft").innerHTML = "Task's left: " + (tasksCount-finishedTasks);
+            }
+            
+            function handleOnKeyDown(event){
+                if(event.keyCode == 27){
+                    document.getElementById("task").value = "";
+                    return;
+                }   
+                if(event.keyCode == 13){ 
+                    var task = document.getElementById("task").value;
+                    if(task !== ""){
+                        addNewTask(task,false);
+                    }
+                    return;
+                }
+            }
+            
+            function clearFinishedTasks(){
+                for (var i = 1; i < tasksStorage.length; i++) {
+                    if (tasksStorage.hasOwnProperty(tasksStorage.key(i))){
+                        if(tasksStorage.getItem(tasksStorage.key(i)) === "true"){
+                            tasksStorage.removeItem(tasksStorage.key(i));    
+                        }
+                    }
+                }
+                var finishedTasks = document.getElementsByClassName("lineThrowgh");
+                while(finishedTasks.length != 0){
+                    finishedTasks[0].parentElement.remove();
+                }
+            }
+            
+            function showAllTasks(){
+                tasksStorage.setItem("button",0);
+                document.getElementById("list").innerHTML = "";
+                for (var i = 1; i < tasksStorage.key(i); i++) {
+                    if (tasksStorage.hasOwnProperty(tasksStorage.key(i))){
+                        addNewTask(tasksStorage.key(i),tasksStorage.getItem(tasksStorage.key(i)));   
+                    }
+                }
+            }
+            
+            function showActiveTasks(){
+                tasksStorage.setItem("button",1);
+                document.getElementById("list").innerHTML = "";
+                 for (var i = 1; i < tasksStorage.length; i++) {
+                    if (tasksStorage.hasOwnProperty(tasksStorage.key(i))){
+                        if(tasksStorage.getItem(tasksStorage.key(i)) === "false" || tasksStorage.getItem(tasksStorage.key(i)) === "undefined"){
+                            addNewTask(tasksStorage.key(i),tasksStorage.getItem(tasksStorage.key(i)));    
+                        }
+                    }
+                }
+            }
+            
+            function showFinishedTsaks(){
+                tasksStorage.setItem("button",2);
+                document.getElementById("list").innerHTML = "";
+                for (var i = 1; i < tasksStorage.length; i++) {
+                    if (tasksStorage.hasOwnProperty(tasksStorage.key(i))){
+                        if(tasksStorage.getItem(tasksStorage.key(i)) === "true"){
+                            addNewTask(tasksStorage.key(i),tasksStorage.getItem(tasksStorage.key(i)));    
+                        }
+                    }
+                }
+            }
+            
+            function selectAll(checked){
+                var elements = document.getElementsByClassName("liHolder");
+                for(var i = 0; i < elements.length; i++){
+                    if(checked){
+                        if(tasksStorage.getItem(elements[i].innerText) === "false"){
+                            tasksStorage.setItem(elements[i].innerText,"true");
+                            elements[i].className += " lineThrowgh";
+                            elements[i].firstChild.checked = checked;
+                        }
+                    }else{
+                        if(tasksStorage.getItem(elements[i].innerText) === "true"){
+                            tasksStorage.setItem(elements[i].innerText,"false");      
+                            elements[i].className = elements[i].className.replace(" lineThrowgh","");
+                            elements[i].firstChild.checked = checked;
+                        }
+                    }
+                }
+                setCounter()
+            }
+		</script>
+	</body>
+</html>
