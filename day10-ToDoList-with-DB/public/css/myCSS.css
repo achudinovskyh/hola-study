@@ -1,0 +1,59 @@
+body{
+    width: 70%;
+    margin: auto;
+    margin-top: 60px;
+}
+ul {
+    list-style-type: none;
+    padding: 0px 5px;
+}
+li{
+    display: block;
+}
+li:hover {
+    background-color: gray;
+
+}
+li:hover div.close {
+    visibility: visible;
+}
+#task {
+    width: 95%;
+    float: right;
+}
+#window {
+    border: 1px solid black;
+    margin-top: 10px;
+    height: 500px;
+}
+#menu {
+    display: flex;
+    flex-direction: row;
+    justify-content: space-between;
+    border-top: 2px solid black;
+    padding-top: 10px;
+    margin: 10px;
+    bottom: 0;
+}
+.button {
+    background-color: white;
+    border: none;
+    color: blue;
+    text-decoration: underline;
+}
+.close {
+    float: right;
+    margin-right: 15px;
+    visibility: hidden;
+    cursor: pointer;
+}
+input {
+    float: left;
+}
+.liHolder {
+    display:inline-block;
+    width: 95%;
+}
+.lineThrowgh {
+    text-decoration: line-through;
+}
