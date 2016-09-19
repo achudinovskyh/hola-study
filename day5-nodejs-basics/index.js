@@ -20,7 +20,7 @@ io.sockets.on('connection', function(socket){
             getUsers();
             callback(true);
         }       
-    })
+    });
   
     socket.on('new message', function(msg,callback){
         if(msg.substr(0,3) == "/pm"){

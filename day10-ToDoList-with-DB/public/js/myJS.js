@@ -1,9 +1,16 @@
-var buttonPosition;
-var myuserID = 1;
 
-function init() {
 
-}
+window.onload = function setFilter() {
+    var filter = getCookie('filter');
+    if(filter == "1"){
+        selectFinishedTasksRequest();
+    }else if(filter == "2"){
+        selectAllTasksRequest();
+    }else if(filter == "0"){
+        selectActiveTasksRequest();
+    }
+    setCounter();
+};
 
 function addNewTask(taskId,text,status){
     console.log(status);
@@ -44,6 +51,9 @@ function addNewTask(taskId,text,status){
         }else{
             temp.className = temp.className.replace(" lineThrowgh","");
             sendUpdateStatusRequest(this.dataID,0);
+        }
+        if(getCookie('filter') != "1"){
+            temp.parentElement.remove();
         }
         setCounter();
     };
@@ -89,29 +99,33 @@ function addNewTask(taskId,text,status){
     divText.appendChild(input);
     setCounter();
 }
+
 function selectFinishedTasksRequest() {
-    buttonPosition = 3;
-    var data = {action: "getFinishedTasks", userId:myuserID};
+    document.cookie = "filter=1";
+    var data = {action: "getFinishedTasks", userId:getCookie('toDoId')};
 
     $.ajax({
         type: 'POST',
         data: JSON.stringify(data),
         contentType: 'application/json',
-        url: 'http://localhost:3000/',
+        url: '/',
+        //url: '/achudo/day10-toDoList-with-DB/',
         success: function(tasks) {
             showTasks(tasks);
         }
     });
 }
-function selectActiveTasksRequest() {
-    buttonPosition = 2;
-    var data = {action: "getActiveTasks", userId:myuserID};
+
+function selectActiveTasksRequest(){
+    document.cookie = "filter=0";
+    var data = {action: "getActiveTasks", userId:getCookie('toDoId')};
 
     $.ajax({
         type: 'POST',
         data: JSON.stringify(data),
         contentType: 'application/json',
-        url: 'http://localhost:3000/',
+        url: '/',
+        //url: '/achudo/day10-toDoList-with-DB/',
         success: function(tasks) {
            showTasks(tasks);
         }
@@ -119,18 +133,35 @@ function selectActiveTasksRequest() {
 }
 
 function selectAllTasksRequest() {
-    buttonPosition = 1;
-    var data = {action: "getAllTasks", userId:myuserID};
+    document.cookie = "filter=2";
+    var data = {action: "getAllTasks", userId:getCookie('toDoId')};
 
     $.ajax({
         type: 'POST',
         data: JSON.stringify(data),
         contentType: 'application/json',
-        url: 'http://localhost:3000/',
+        url: '/',
+        //url: '/achudo/day10-toDoList-with-DB/',
         success: function(tasks) {
             showTasks(tasks);
         }
     });
+}
+
+function selectAll(checked){
+    var data = {action:"sellectAll", userId:getCookie('toDoId'), status:+checked};
+
+    $.ajax({
+        type: 'POST',
+        data: JSON.stringify(data),
+        contentType: 'application/json',
+        url: '/',
+        //url: '/achudo/day10-toDoList-with-DB/',
+        success: function(data) {
+
+        }
+    });
+    setCounter();
 }
 
 function showTasks(tasks){
@@ -147,7 +178,8 @@ function sendUpdateTextRequest(taskID,task) {
         type: 'POST',
         data: JSON.stringify(data),
         contentType: 'application/json',
-        url: 'http://localhost:3000/',
+        url: '/',
+        //url: '/achudo/day10-toDoList-with-DB/',
         success: function(resData) {
             //console.log(resData);
         }
@@ -161,7 +193,8 @@ function sendUpdateStatusRequest(taskID,checked) {
         type: 'POST',
         data: JSON.stringify(data),
         contentType: 'application/json',
-        url: 'http://localhost:3000/',
+        url: '/',
+        //url: '/achudo/day10-toDoList-with-DB/',
         success: function(resData) {
             //console.log(resData);
         }
@@ -169,17 +202,16 @@ function sendUpdateStatusRequest(taskID,checked) {
 }
 
 function sendAddTaskRequest(action, task) {
-    var data = {action: "addTask", userId: myuserID, text:task, status: 0};
+    var data = {action: "addTask", userId:getCookie('toDoId'), text:task, status: 0};
 
     $.ajax({
         type: 'POST',
         data: JSON.stringify(data),
         contentType: 'application/json',
-        url: 'http://localhost:3000/',
+        url: '/',
+        //url: '/achudo/day10-toDoList-with-DB/',
         success: function(resData) {
-            console.log(resData);
-            return resData;
-           // addNewTask(resData.insertId,task,0);
+           addNewTask(resData.insertId,task,0);
         }
     });
 }
@@ -191,7 +223,8 @@ function sendDeleteTaskRequest(action, taskId) {
         type: 'POST',
         data: JSON.stringify(data),
         contentType: 'application/json',
-        url: 'http://localhost:3000/',
+        url: '/',
+        //url: '/achudo/day10-toDoList-with-DB/',
         success: function(data) {
             console.log("task deleted!");
         }
@@ -199,49 +232,33 @@ function sendDeleteTaskRequest(action, taskId) {
 }
 
 function sendDeleteFinished() {
-    var data = {action: "deleteFinished"};
+    var data = {action: "deleteFinished", userId:getCookie('toDoId')};
 
     $.ajax({
         type: 'POST',
         data: JSON.stringify(data),
         contentType: 'application/json',
-        url: 'http://localhost:3000/',
+        url: '/',
+        //url: '/achudo/day10-toDoList-with-DB/',
         success: function(data) {
-            console.log("task deleted!");
+            //console.log("task deleted!");
         }
     });
 }
+
 function setCounter(){
+    var data = {action: "setCounter", userId:getCookie('toDoId')};
 
-    function selectFinished() {
-        var data = {action: "getFinishedTasks", userId:myuserID};
-
-        $.ajax({
-            type: 'POST',
-            data: JSON.stringify(data),
-            contentType: 'application/json',
-            url: 'http://localhost:3000/',
-            success: function(tasks) {
-                return tasks.length;
-            }
-        });
-    }
-
-    function selectAll() {
-        var data = {action: "getAllTasks", userId:myuserID};
-
-        $.ajax({
-            type: 'POST',
-            data: JSON.stringify(data),
-            contentType: 'application/json',
-            url: 'http://localhost:3000/',
-            success: function(tasks) {
-                return tasks.length;
-            }
-        });
-    }
-
-    document.getElementById("tasksLeft").innerHTML = "Task's left: " + (selectAll()-selectFinished());
+    $.ajax({
+        type: 'POST',
+        data: JSON.stringify(data),
+        contentType: 'application/json',
+        url: '/',
+        //url: '/achudo/day10-toDoList-with-DB/',
+        success: function(data) {
+            document.getElementById("tasksLeft").innerHTML = "Task's left: " + data[0]["amount"];
+        }
+    });
 }
 
 function clearFinishedTasks(){
@@ -252,27 +269,7 @@ function clearFinishedTasks(){
     }
 }
 
-function selectAll(checked){
-    var elements = document.getElementsByClassName("liHolder");
-    for(var i = 0; i < elements.length; i++){
-        if(checked){
-            if(tasksStorage.getItem(elements[i].innerText) === "false"){
-                tasksStorage.setItem(elements[i].innerText,"true");
-                elements[i].className += " lineThrowgh";
-                elements[i].firstChild.checked = checked;
-            }
-        }else{
-            if(tasksStorage.getItem(elements[i].innerText) === "true"){
-                tasksStorage.setItem(elements[i].innerText,"false");
-                elements[i].className = elements[i].className.replace(" lineThrowgh","");
-                elements[i].firstChild.checked = checked;
-            }
-        }
-    }
-    setCounter()
-}
-
-function handleOnKeyDown(event){
+function handleOnKeyUp(event){
     if(event.keyCode == 27){
         document.getElementById("task").value = "";
         return;
@@ -283,4 +280,16 @@ function handleOnKeyDown(event){
             sendAddTaskRequest("addTask",task,0);
         }
     }
+}
+
+function logout() {
+    document.cookie = "toDoId=; expires=Thu, 01 Jan 1970 00:00:00 UTC";
+    //document.location.href = "/achudo/day10-toDoList-with-DB/";
+    document.href = "/";
+}
+
+function getCookie(name) {
+    var value = "; " + document.cookie;
+    var parts = value.split("; " + name + "=");
+    if (parts.length == 2) return parts.pop().split(";").shift();
 }

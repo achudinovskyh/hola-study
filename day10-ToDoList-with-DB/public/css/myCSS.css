@@ -18,8 +18,8 @@ li:hover div.close {
     visibility: visible;
 }
 #task {
-    width: 95%;
-    float: right;
+    width: 90%;
+    float: left;
 }
 #window {
     border: 1px solid black;
