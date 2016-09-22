@@ -1,0 +1,30 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>RegExpDay</title>
+</head>
+<body>
+<div><input type="text"></div>
+<textarea rows="10" cols="50">
+</textarea>
+<div id="result">result</div>
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/1.11.3/jquery.min.js"></script>
+<script>
+    const ENTER = 13;
+    let input = $('input');
+    let textarea = $('textarea');
+    input.keyup(function (e) {
+        if (e.keyCode == ENTER) {
+            let input = $('input').val();
+            let strRegExp = input.match(/\/(.+)\/([gimy]{0,3})/);
+            let regex = new RegExp(strRegExp[1], strRegExp[2]);
+            let str = textarea.val();
+            let txt = str.replace(regex,"<mark>$&</mark>");
+            $("#result").html(txt);
+        }
+    });
+
+</script>
+</body>
+</html>
