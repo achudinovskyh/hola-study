@@ -1,0 +1,32 @@
+<!DOCTYPE HTML>
+<html>
+<head>
+    <title>toDoList</title>
+    <meta charset='utf-8' />
+    <link rel="stylesheet" href="/css/myCSS.css">
+</head>
+<body>
+<div id="inputContainer">
+    <input type="checkbox" name="selectAll" onclick="selectAll(this.checked)" value="All">
+    <input id="task" type="text" name="task" onkeyup="handleOnKeyUp(event)" autofocus>
+    <button class="button" onclick="logout()">Log-out</button><br>
+</div>
+<div id="window">
+    <div style="height:430px; overflow-y:scroll;">
+        <ul id="list">
+        </ul>
+    </div>
+    <div id="menu">
+        <div><span id="tasksLeft" style="margin: 0;">Task's left: 0</span></div>
+        <div>
+            <input type="button" onclick="selectAllTasksRequest()" value="All">
+            <input type="button" onclick="selectActiveTasksRequest()" value="Active">
+            <input type="button" onclick="selectFinishedTasksRequest()" value="Done">
+        </div>
+        <div><button class="button" onclick="clearFinishedTasks()">Clear Finished Tasks</button></div>
+    </div>
+</div>
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/1.11.3/jquery.min.js"></script>
+<script src="/js/test.js"></script>
+</body>
+</html>
